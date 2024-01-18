@@ -1,5 +1,5 @@
 <?php
-namespace Vitor\FirstStep\Repository;
+namespace Vitor\FirstStep\Domain\Repository;
 
 interface IPersonRepository
 {

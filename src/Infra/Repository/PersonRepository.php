@@ -3,7 +3,7 @@ namespace Vitor\FirstStep\Infra\Repository;
 
 use PDO;
 use Vitor\FirstStep\Infra\Db\SQLiteDBConnection;
-use Vitor\FirstStep\Repository\IPersonRepository;
+use Vitor\FirstStep\Domain\Repository\IPersonRepository;
 
 class PersonRepository implements IPersonRepository
 {

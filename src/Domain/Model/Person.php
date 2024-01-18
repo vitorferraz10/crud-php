@@ -1,5 +1,5 @@
 <?php
-namespace Vitor\FirstStep;
+namespace Vitor\FirstStep\Domain\Model;
 
 class Person
 {
