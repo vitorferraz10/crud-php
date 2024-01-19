@@ -15,7 +15,7 @@ class Person
 
   private function validationName(string $name)
   {
-    if (strlen($name) < 5) {
+    if (strlen($name) <= 0) {
       echo "The name most contain 5 letters or more" . PHP_EOL;
       exit();
     }

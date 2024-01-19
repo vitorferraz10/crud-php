@@ -1,7 +1,9 @@
 <?php
+
 namespace Vitor\FirstStep\Infra\Repository;
 
 use PDO;
+use Vitor\FirstStep\Domain\Model\Person;
 use Vitor\FirstStep\Infra\Db\SQLiteDBConnection;
 use Vitor\FirstStep\Domain\Repository\IPersonRepository;
 
@@ -18,6 +20,14 @@ class PersonRepository implements IPersonRepository
   public function create(string $name, int $id)
   {
     try {
+
+      $isDuplicated = $this->verifyDuplicant($id);
+
+      if ($isDuplicated) {
+        echo "User with ID $id already exists. Choose to update the record or return an error." . PHP_EOL;
+        return;
+      }
+
       $sqlInsert = "INSERT INTO people_example (name, id) VALUES (:name, :id);";
       $statement = $this->db->getPdo()->prepare($sqlInsert);
       $statement->bindValue(':id', $id);
@@ -28,7 +38,6 @@ class PersonRepository implements IPersonRepository
       } else {
         echo ($statement->errorInfo());
       }
-
     } catch (\PDOException $e) {
       echo "Error: " . $e->getMessage() . PHP_EOL;
     }
@@ -42,8 +51,8 @@ class PersonRepository implements IPersonRepository
       $statement = $this->db->getPdo()->query($sqlQuery);
 
       if ($statement->execute()) {
-
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
+        $result = $this->hydrateUserList($statement);
+        print_r($result);
       } else {
         print_r($statement->errorInfo());
       }
@@ -53,24 +62,22 @@ class PersonRepository implements IPersonRepository
     }
   }
 
-  public function findUnique(string $nameFind)
+  public function findUnique(int $id)
   {
     try {
-
-      $sqlQuery = "SELECT * FROM people_example WHERE name = $nameFind";
-      $statement = $this->db->getPdo()->query($sqlQuery);
+      $sqlQuery = "SELECT * FROM people_example WHERE id = :id";
+      $statement = $this->db->getPdo()->prepare($sqlQuery);
+      $statement->bindValue(':id', $id);
 
       if ($statement->execute()) {
-
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
+       $result = $this->hydrateUserList($statement);
+       print_r($result);
       } else {
-        return 'User not exists';
+        return 'Error executing query';
       }
-
     } catch (\PDOException $e) {
       echo "Error: " . $e->getMessage() . PHP_EOL;
     }
-
   }
 
   public function update(int $id, $name)
@@ -92,5 +99,32 @@ class PersonRepository implements IPersonRepository
       }
     }
     return true;
+  }
+
+  private function verifyDuplicant(int $id)
+  {
+    $sqlCheck = "SELECT COUNT(*) FROM people_example WHERE id = :id";
+    $checkStatement = $this->db->getPdo()->prepare($sqlCheck);
+    $checkStatement->bindValue(':id', $id);
+    $checkStatement->execute();
+
+    $userExists = (bool) $checkStatement->fetchColumn();
+    if ($userExists) {
+      return true;
+    }
+  }
+
+  private function hydrateUserList(\PDOStatement $stmt)
+  {
+    $personDataList = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $list = [];
+
+    foreach ($personDataList as $item) {
+      $list[] = new Person(
+        $item["name"],
+        $item["id"],
+      );
+    }
+    return $list;
   }
 }

@@ -5,11 +5,14 @@ require_once 'vendor/autoload.php';
 use Vitor\FirstStep\Infra\Repository\PersonRepository;
 use Vitor\FirstStep\Domain\Model\Person;
 
- $vitor = new Person('Lionel Messi', 10);
+ $vitor = new Person('Cristiano Ronaldo', 7);
 
 $userRepository = new PersonRepository();
 
-$userRepository->create($vitor->name, $vitor->id);
+
+$userRepository->findUnique(10);
+
+// $userRepository->findUnique(11);
 
 
 
