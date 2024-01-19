@@ -21,7 +21,7 @@ class PersonRepository implements IPersonRepository
   {
     try {
 
-      $isDuplicated = $this->verifyDuplicant($id);
+      $isDuplicated = $this->verifyDuplicity($id);
 
       if ($isDuplicated) {
         echo "User with ID $id already exists. Choose to update the record or return an error." . PHP_EOL;
@@ -101,7 +101,7 @@ class PersonRepository implements IPersonRepository
     return true;
   }
 
-  private function verifyDuplicant(int $id)
+  private function verifyDuplicity(int $id)
   {
     $sqlCheck = "SELECT COUNT(*) FROM people_example WHERE id = :id";
     $checkStatement = $this->db->getPdo()->prepare($sqlCheck);
