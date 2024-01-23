@@ -70,8 +70,8 @@ class PersonRepository implements IPersonRepository
       $statement->bindValue(':id', $id);
 
       if ($statement->execute()) {
-       $result = $this->hydrateUserList($statement);
-       print_r($result);
+        $result = $this->hydrateUserList($statement);
+        print_r($result);
       } else {
         return 'Error executing query';
       }
@@ -82,23 +82,47 @@ class PersonRepository implements IPersonRepository
 
   public function update(int $id, $name)
   {
-    if (isset($this->names[$id])) {
-      $this->names[$id] = ['name' => $name];
-      return;
+    try {
+
+      $sqlQueryUpdate = "UPDATE people_example SET name = :name WHERE id = :id";
+
+      $stmt = $this->db->getPdo()->prepare($sqlQueryUpdate);
+
+      $stmt->bindParam(':name', $name);
+      $stmt->bindParam(':id', $id);
+
+      $stmt->execute();
+
+      $affectedRows = $stmt->rowCount();
+
+      if ($affectedRows > 0) {
+        echo "Update successful. Rows affected: $affectedRows" . PHP_EOL;
+      } else {
+        echo "No rows were updated." . PHP_EOL;
+      }
+    } catch (\PDOException $e) {
+
+      echo "Error: " . $e->getMessage() . PHP_EOL;
     }
-    echo 'This name dont exists in data base';
   }
 
   public function delete($id)
   {
-    foreach ($this->names as $key => $name) {
-      if ($key == $id) {
-        unset($this->names[$key]);
+    try {
+      $stmt = $this->db->getPdo()->prepare("DELETE FROM people_example WHERE id = :id");
+      $stmt->bindParam("id", $id);
+      $stmt->execute();
+
+      $affectedRows = $stmt->rowCount();
+
+      if ($affectedRows > 0) {
+        echo "Delete user with id $id." . PHP_EOL;
       } else {
-        return false;
+        echo "User dont exist" . PHP_EOL;
       }
+    } catch (\PDOException $e) {
+      echo "" . $e->getMessage() . PHP_EOL;
     }
-    return true;
   }
 
   private function verifyDuplicity(int $id)
